@@ -36,13 +36,13 @@ public class FriendlyFire
             new List<string> {
                 "ff"  
             },
-            "unmatched.gg friendly fire", 
+            "Дружественный огонь", 
             defaultOption, 
             30,
             new Dictionary<string, VoteOption>
             {
-                { "Enable", new VoteOption("{Green}Enable", ["hvh_unmatched_friendlyfire 0"])},
-                { "Disable", new VoteOption("{Red}Disable", ["hvh_unmatched_friendlyfire 1"])},
+                { "Enable", new VoteOption("{Green}Включить", ["hvh_unmatched_friendlyfire 0"])},
+                { "Disable", new VoteOption("{Red}Отключить", ["hvh_unmatched_friendlyfire 1"])},
             },
             plugin.Config.CustomVoteSettings.Style);
     }
