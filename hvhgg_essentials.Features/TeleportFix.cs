@@ -34,13 +34,13 @@ public class TeleportFix
         
         Plugin.CustomVotesApi.Get()?.AddCustomVote(
             "teleport", 
-            "Teleport/Airstuck", 
+            "Телепорт / Airstuck", 
             defaultOption, 
             30,
             new Dictionary<string, VoteOption>
             {
-                { "Allow", new("{Green}Allow", new List<string> { "hvh_restrict_teleport 0" })},
-                { "Block", new("{Red}Block", new List<string> { "hvh_restrict_teleport 1" })},
+                { "Allow", new("{Green}Разрешить", new List<string> { "hvh_restrict_teleport 0" })},
+                { "Block", new("{Red}Заблокировать", new List<string> { "hvh_restrict_teleport 1" })},
             },
             plugin.Config.CustomVoteSettings.Style);
     }
@@ -82,7 +82,7 @@ public class TeleportFix
             return HookResult.Changed;
         
         // print a warning to all players
-        var feature = isReasonable ? "fake up/down" : player.Pawn.Value!.As<CCSPlayerPawn>().OnGroundLastTick ? "teleport" : "airstuck";
+        var feature = isReasonable ? "fake up/down" : player.Pawn.Value!.As<CCSPlayerPawn>().OnGroundLastTick ? "телепорт" : "airstuck";
         Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Игрок {ChatColors.Red}{player.PlayerName}{ChatColors.Default} попытался использовать {ChatColors.Red}{feature}{ChatColors.Default}!");
         _teleportBlockWarnings[player.Index] = Server.CurrentTime;
 
