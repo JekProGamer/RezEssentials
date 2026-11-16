@@ -1,8 +1,6 @@
 ﻿using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CS2_CustomVotes.Shared;
 using CSSharpUtils.Extensions;
 using hvhgg_essentials.Features;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +20,6 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
     
     public required MemoryFunctionVoid<CCSPlayer_MovementServices, IntPtr> RunCommand;
 
-    public static PluginCapability<ICustomVoteApi> CustomVotesApi { get; } = new("custom_votes:api");
-    private bool _isCustomVotesLoaded;
     
     public void OnConfigParsed(Cs2EssentialsConfig config)
     {
@@ -78,29 +74,8 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         Console.WriteLine("[RezTop] Загрузка плагина Essentials завершена");
     }
 
-    public override void OnAllPluginsLoaded(bool hotReload)
-    {
-        base.OnAllPluginsLoaded(hotReload);
-        
-        try
-        {
-            if (CustomVotesApi.Get() is null)
-                return;
-        }
-        catch (Exception)
-        {
-            Console.WriteLine("[RezTop] Плагин CS2-CustomVotes не найден. Пользовательские голосования не будут зарегистрированы.");
-            return;
-        }
-        
-        _isCustomVotesLoaded = true;
-        Console.WriteLine("[RezTop] Регистрирую пользовательские голосования");
-        RapidFire.RegisterCustomVotes(this);
-        FriendlyFire.RegisterCustomVotes(this);
-        TeleportFix.RegisterCustomVotes(this);
-    }
-
     private void UseTeleport()
+()
     {
         var teleportFix = _serviceProvider!.GetRequiredService<TeleportFix>();
         
@@ -189,15 +164,6 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         
         var teleportFix = _serviceProvider.GetRequiredService<TeleportFix>();
         RunCommand.Unhook(teleportFix.RunCommand, HookMode.Pre);
-        
-        if (!_isCustomVotesLoaded)
-            return;
-        
-        Console.WriteLine("[RezTop] Отменяю регистрацию пользовательских голосований");
-        
-        RapidFire.UnregisterCustomVotes(this);
-        FriendlyFire.UnregisterCustomVotes(this);
-        TeleportFix.UnregisterCustomVotes(this);
         
         base.Unload(hotReload);
     }
