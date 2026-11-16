@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
-using CS2_CustomVotes.Shared.Models;
 using CSSharpUtils.Extensions;
 using CSSharpUtils.Utils;
 using hvhgg_essentials.Enums;
@@ -29,48 +28,6 @@ public class RapidFire
         hvh_rapidfire_reflect_scale.Value = _plugin.Config.RapidFireReflectScale;
     }
 
-    public static void RegisterCustomVotes(Plugin plugin)
-    {
-        var defaultOption = plugin.Config.RapidFireFixMethod switch
-        {
-            FixMethod.Allow => "Разрешить",
-            FixMethod.Ignore => "Заблокировать",
-            FixMethod.Reflect => "Отразить урон",
-            FixMethod.ReflectSafe => "Отразить урон (без смерти)",
-            FixMethod.PreventDamage => "Запретить урон",
-            _ => "Allow"
-        };
-
-        var options = new Dictionary<string, VoteOption>();
-
-        if (plugin.Config.CustomVoteSettings.RapidFireVote != "off")
-        {
-            options.Add("Allow", new VoteOption("{Green}Разрешить", new List<string> { "hvh_restrict_rapidfire 0" }));
-            options.Add("Block", new VoteOption("{Red}Заблокировать", new List<string> { "hvh_restrict_rapidfire 1" }));
-            
-            if (plugin.Config.CustomVoteSettings.RapidFireVote == "full")
-            {
-                options.Add("Reflect", new VoteOption("{Orange}Отразить урон", new List<string> { "hvh_restrict_rapidfire 2" }));
-                options.Add("Reflect (safe)", new VoteOption("{Orange}Отразить урон (без смерти)", new List<string> { "hvh_restrict_rapidfire 3" }));
-                options.Add("Prevent damage", new VoteOption("{Red}Запретить урон", new List<string> { "hvh_restrict_rapidfire 4" }));
-            }
-        }
-        
-        Plugin.CustomVotesApi.Get()?.AddCustomVote(
-            "rapidfire", 
-            new List<string> {
-              "rf"  
-            },
-            "Rapid Fire", 
-            defaultOption, 
-            30,
-            options, 
-            plugin.Config.CustomVoteSettings.Style);
-    }
-    public static void UnregisterCustomVotes(Plugin plugin)
-    {
-        Plugin.CustomVotesApi.Get()?.RemoveCustomVote("rapidfire");
-    }
 
     public HookResult OnWeaponFire(EventWeaponFire eventWeaponFire, GameEventInfo info)
     {
