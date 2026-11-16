@@ -40,13 +40,13 @@ public class WeaponRestrict
 
 	private readonly Dictionary<uint, float> _lastWeaponRestrictPrint = new Dictionary<uint, float>();
 
-	public static readonly FakeConVar<int> hvh_restrict_awp = new FakeConVar<int>("hvh_restrict_awp", "Ограничить awp до X для каждой команды", -1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(-1, int.MaxValue));
+	public static readonly FakeConVar<int> hvh_restrict_awp = new FakeConVar<int>("hvh_restrict_awp", "Ограничить количество AWP для каждой команды", -1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(-1, int.MaxValue));
 
-	public static readonly FakeConVar<int> hvh_restrict_scout = new FakeConVar<int>("hvh_restrict_scout", "Ограничить scout до X для каждой команды", -1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(-1, int.MaxValue));
+	public static readonly FakeConVar<int> hvh_restrict_scout = new FakeConVar<int>("hvh_restrict_scout", "Ограничить количество Scout для каждой команды", -1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(-1, int.MaxValue));
 
-	public static readonly FakeConVar<int> hvh_restrict_auto = new FakeConVar<int>("hvh_restrict_auto", "Ограничить autosnaiper до X для каждой команды", -1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(-1, int.MaxValue));
+	public static readonly FakeConVar<int> hvh_restrict_auto = new FakeConVar<int>("hvh_restrict_auto", "Ограничить количество AutoSniper для каждой команды", -1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(-1, int.MaxValue));
 
-	public static readonly FakeConVar<string> hvh_bypass_weapon_restrict_flag = new FakeConVar<string>("hvh_bypass_weapon_restrict_flag", "Флажок разрешения для обхода ограничений на оружие", "", ConVarFlags.FCVAR_NONE);
+	public static readonly FakeConVar<string> hvh_bypass_weapon_restrict_flag = new FakeConVar<string>("hvh_bypass_weapon_restrict_flag", "Флаг доступа для обхода ограничений на оружие", "", ConVarFlags.FCVAR_NONE);
 
 	public WeaponRestrict(Plugin plugin)
 	{
