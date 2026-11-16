@@ -46,11 +46,6 @@ public class Cs2EssentialsConfig : BasePluginConfig
 	public bool AllowRageQuit { get; set; } = true;
 
 	[JsonPropertyName("ChatPrefix")]
-	public string ChatPrefix { get; set; } = "[{Gold}Rez{DarkRed}Top{Default}.cc]";
-
-	[JsonPropertyName("CustomVoteSettings")]
-	public Cs2CustomVoteSettings CustomVoteSettings { get; set; } = new Cs2CustomVoteSettings();
-
-	[JsonPropertyName("ConfigVersion")]
+	public string ChatPrefix { get; set; } = "[{Gold}Rez{DarkRed}Top{Default}.cc]";[JsonPropertyName("ConfigVersion")]
 	public override int Version { get; set; } = 5;
 }
