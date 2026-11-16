@@ -19,7 +19,6 @@ public class RapidFire
 
 	private readonly HashSet<uint> _rapidFireBlockUserIds = new HashSet<uint>();
 
-	private readonly Dictionary<uint, float> _rapidFireBlockWarnings = new Dictionary<uint, float>();
 
 	private readonly Plugin _plugin;
 
@@ -105,16 +104,6 @@ public class RapidFire
 			Server.NextFrame(_rapidFireBlockUserIds.Clear);
 		}
 		_rapidFireBlockUserIds.Add(index);
-		if (_rapidFireBlockWarnings.TryGetValue(index, out var value2) && value2 + 3f > Server.CurrentTime)
-		{
-			return HookResult.Continue;
-		}
-		if (!_plugin.Config.PrintWarnings)
-		{
-			return HookResult.Continue;
-		}
-		Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Игрок {ChatColors.Red}{eventWeaponFire.Userid.PlayerName}{ChatColors.Default} пытался использовать {ChatColors.Red}rapid fire{ChatColors.Default}!");
-		_rapidFireBlockWarnings[index] = Server.CurrentTime;
 		return HookResult.Continue;
 	}
 
