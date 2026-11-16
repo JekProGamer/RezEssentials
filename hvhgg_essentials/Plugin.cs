@@ -10,7 +10,7 @@ namespace hvhgg_essentials;
 
 public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
 {
-    public override string ModuleName => "RezTop - Essentials";
+    public override string ModuleName => "Reztop-essentials";
     public override string ModuleVersion => "1.6.0";
     public override string ModuleAuthor => "imi-tat0r";
     public override string ModuleDescription => "Основные функции для CS2 сервера RezTop";
