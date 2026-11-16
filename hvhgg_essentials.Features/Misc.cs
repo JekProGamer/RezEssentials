@@ -61,10 +61,10 @@ public class Misc
                 case FixMethod.Allow:
                     break;
                 case FixMethod.Ignore:
-                    player.PrintToChat($"Method: {ChatColors.Red}блокировка выстрела");
+                    player.PrintToChat($"Метод: {ChatColors.Red}блокировка выстрела");
                     break;
                 case FixMethod.PreventDamage:
-                    player.PrintToChat($"Method: {ChatColors.Red}блокировка урона");
+                    player.PrintToChat($"Метод: {ChatColors.Red}блокировка урона");
                     break;
                 case FixMethod.Reflect:
                     player.PrintToChat(
