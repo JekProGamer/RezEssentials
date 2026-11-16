@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
-using CS2_CustomVotes.Shared.Models;
 using CSSharpUtils.Extensions;
 using CSSharpUtils.Utils;
 using hvhgg_essentials.Extensions;
@@ -25,29 +24,6 @@ public class TeleportFix
         hvh_restrict_teleport.Value = _plugin.Config.RestrictTeleport;
     }
     
-    public static void RegisterCustomVotes(Plugin plugin)
-    {
-        if (!plugin.Config.CustomVoteSettings.TeleportFixVote)
-            return;
-        
-        var defaultOption = plugin.Config.RestrictTeleport ? "Block" : "Allow";
-        
-        Plugin.CustomVotesApi.Get()?.AddCustomVote(
-            "teleport", 
-            "Телепорт / Airstuck", 
-            defaultOption, 
-            30,
-            new Dictionary<string, VoteOption>
-            {
-                { "Allow", new("{Green}Разрешить", new List<string> { "hvh_restrict_teleport 0" })},
-                { "Block", new("{Red}Заблокировать", new List<string> { "hvh_restrict_teleport 1" })},
-            },
-            plugin.Config.CustomVoteSettings.Style);
-    }
-    public static void UnregisterCustomVotes(Plugin plugin)
-    {
-        Plugin.CustomVotesApi.Get()?.RemoveCustomVote("teleport");
-    }
 
     public HookResult RunCommand(DynamicHook h)
     {
