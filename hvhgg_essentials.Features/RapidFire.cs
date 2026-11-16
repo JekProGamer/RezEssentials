@@ -72,11 +72,15 @@ public class RapidFire
 		{
 			return HookResult.Continue;
 		}
+		CBasePlayerWeapon cBasePlayerWeapon = eventWeaponFire.Userid.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
+		if (cBasePlayerWeapon?.DesignerName == "weapon_healthshot")
+		{
+			return HookResult.Continue;
+		}
 		if (hvh_restrict_rapidfire.Value == 1)
 		{
 			DelayNextAttack(eventWeaponFire.Userid);
 		}
-		CBasePlayerWeapon cBasePlayerWeapon = eventWeaponFire.Userid.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
 		CCSWeaponBaseVData cCSWeaponBaseVData = cBasePlayerWeapon?.GetVData<CCSWeaponBaseVData>();
 		uint index = eventWeaponFire.Userid.Pawn.Index;
 		if (!_lastPlayerShotTick.TryGetValue(index, out var value))
@@ -164,7 +168,7 @@ public class RapidFire
 	private static void DelayNextAttack(CCSPlayerController player)
 	{
 		CBasePlayerWeapon cBasePlayerWeapon = player.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
-		if (cBasePlayerWeapon == null || cBasePlayerWeapon.DesignerName == "weapon_revolver")
+		if (cBasePlayerWeapon == null || cBasePlayerWeapon.DesignerName == "weapon_revolver" || cBasePlayerWeapon.DesignerName == "weapon_healthshot")
 		{
 			return;
 		}
