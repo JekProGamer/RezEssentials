@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-using CS2_CustomVotes.Shared.Models;
 
 namespace hvhgg_essentials.Features;
 
@@ -24,32 +23,6 @@ public class FriendlyFire
         "planted_c4"
     };
     
-    public static void RegisterCustomVotes(Plugin plugin)
-    {
-        if (!plugin.Config.CustomVoteSettings.FriendlyFireVote)
-            return;
-        
-        var defaultOption = plugin.Config.UnmatchedFriendlyFire ? "Enable" : "Disable";
-        
-        Plugin.CustomVotesApi.Get()?.AddCustomVote(
-            "friendlyfire",
-            new List<string> {
-                "ff"  
-            },
-            "Дружественный огонь", 
-            defaultOption, 
-            30,
-            new Dictionary<string, VoteOption>
-            {
-                { "Enable", new VoteOption("{Green}Включить", ["hvh_unmatched_friendlyfire 0"])},
-                { "Disable", new VoteOption("{Red}Отключить", ["hvh_unmatched_friendlyfire 1"])},
-            },
-            plugin.Config.CustomVoteSettings.Style);
-    }
-    public static void UnregisterCustomVotes(Plugin plugin)
-    {
-        Plugin.CustomVotesApi.Get()?.RemoveCustomVote("friendlyfire");
-    }
 
     public HookResult OnTakeDamage(DynamicHook hook)
     {
