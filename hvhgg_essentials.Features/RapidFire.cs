@@ -33,11 +33,11 @@ public class RapidFire
     {
         var defaultOption = plugin.Config.RapidFireFixMethod switch
         {
-            FixMethod.Allow => "Allow",
-            FixMethod.Ignore => "Block",
-            FixMethod.Reflect => "Reflect",
-            FixMethod.ReflectSafe => "Reflect (safe)",
-            FixMethod.PreventDamage => "Prevent damage",
+            FixMethod.Allow => "Разрешить",
+            FixMethod.Ignore => "Заблокировать",
+            FixMethod.Reflect => "Отразить урон",
+            FixMethod.ReflectSafe => "Отразить урон (без смерти)",
+            FixMethod.PreventDamage => "Запретить урон",
             _ => "Allow"
         };
 
@@ -45,14 +45,14 @@ public class RapidFire
 
         if (plugin.Config.CustomVoteSettings.RapidFireVote != "off")
         {
-            options.Add("Allow", new VoteOption("{Green}Allow", new List<string> { "hvh_restrict_rapidfire 0" }));
-            options.Add("Block", new VoteOption("{Red}Block", new List<string> { "hvh_restrict_rapidfire 1" }));
+            options.Add("Allow", new VoteOption("{Green}Разрешить", new List<string> { "hvh_restrict_rapidfire 0" }));
+            options.Add("Block", new VoteOption("{Red}Заблокировать", new List<string> { "hvh_restrict_rapidfire 1" }));
             
             if (plugin.Config.CustomVoteSettings.RapidFireVote == "full")
             {
-                options.Add("Reflect", new VoteOption("{Orange}Reflect", new List<string> { "hvh_restrict_rapidfire 2" }));
-                options.Add("Reflect (safe)", new VoteOption("{Orange}Reflect (safe)", new List<string> { "hvh_restrict_rapidfire 3" }));
-                options.Add("Prevent damage", new VoteOption("{Red}Prevent damage", new List<string> { "hvh_restrict_rapidfire 4" }));
+                options.Add("Reflect", new VoteOption("{Orange}Отразить урон", new List<string> { "hvh_restrict_rapidfire 2" }));
+                options.Add("Reflect (safe)", new VoteOption("{Orange}Отразить урон (без смерти)", new List<string> { "hvh_restrict_rapidfire 3" }));
+                options.Add("Prevent damage", new VoteOption("{Red}Запретить урон", new List<string> { "hvh_restrict_rapidfire 4" }));
             }
         }
         
@@ -61,7 +61,7 @@ public class RapidFire
             new List<string> {
               "rf"  
             },
-            "Rapid fire", 
+            "Rapid Fire", 
             defaultOption, 
             30,
             options, 
