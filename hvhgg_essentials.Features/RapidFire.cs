@@ -1,176 +1,204 @@
-using System;
-using System.Collections.Generic;
-using CS2_CustomVotes.Shared.Models;
-using CSSharpUtils.Extensions;
-using CSSharpUtils.Utils;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
+using CS2_CustomVotes.Shared.Models;
+using CSSharpUtils.Extensions;
+using CSSharpUtils.Utils;
 using hvhgg_essentials.Enums;
 
 namespace hvhgg_essentials.Features;
 
 public class RapidFire
 {
-	private readonly Dictionary<uint, int> _lastPlayerShotTick = new Dictionary<uint, int>();
+    private readonly Dictionary<uint, int> _lastPlayerShotTick = new();
+    private readonly HashSet<uint> _rapidFireBlockUserIds = new();
+    private readonly Dictionary<uint, float> _rapidFireBlockWarnings = new();
 
-	private readonly HashSet<uint> _rapidFireBlockUserIds = new HashSet<uint>();
+    private readonly Plugin _plugin;
+    public static readonly FakeConVar<int> hvh_restrict_rapidfire = new("hvh_restrict_rapidfire", "Restrict rapid fire", 0, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(0, 4));
+    public static readonly FakeConVar<float> hvh_rapidfire_reflect_scale = new("hvh_rapidfire_reflect_scale", "Reflect scale", 1, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<float>(0, 1));
 
+    public RapidFire(Plugin plugin)
+    {
+        _plugin = plugin;
+        _plugin.RegisterFakeConVars(this);
+        hvh_restrict_rapidfire.Value = (int) _plugin.Config.RapidFireFixMethod;
+        hvh_rapidfire_reflect_scale.Value = _plugin.Config.RapidFireReflectScale;
+    }
 
-	private readonly Plugin _plugin;
+    public static void RegisterCustomVotes(Plugin plugin)
+    {
+        var defaultOption = plugin.Config.RapidFireFixMethod switch
+        {
+            FixMethod.Allow => "Allow",
+            FixMethod.Ignore => "Block",
+            FixMethod.Reflect => "Reflect",
+            FixMethod.ReflectSafe => "Reflect (safe)",
+            FixMethod.PreventDamage => "Prevent damage",
+            _ => "Allow"
+        };
 
-	public static readonly FakeConVar<int> hvh_restrict_rapidfire = new FakeConVar<int>("hvh_restrict_rapidfire", "Restrict rapid fire", 0, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<int>(0, 4));
+        var options = new Dictionary<string, VoteOption>();
 
-	public static readonly FakeConVar<float> hvh_rapidfire_reflect_scale = new FakeConVar<float>("hvh_rapidfire_reflect_scale", "Reflect scale", 1f, ConVarFlags.FCVAR_REPLICATED, new RangeValidator<float>(0f, 1f));
+        if (plugin.Config.CustomVoteSettings.RapidFireVote != "off")
+        {
+            options.Add("Allow", new VoteOption("{Green}Allow", new List<string> { "hvh_restrict_rapidfire 0" }));
+            options.Add("Block", new VoteOption("{Red}Block", new List<string> { "hvh_restrict_rapidfire 1" }));
+            
+            if (plugin.Config.CustomVoteSettings.RapidFireVote == "full")
+            {
+                options.Add("Reflect", new VoteOption("{Orange}Reflect", new List<string> { "hvh_restrict_rapidfire 2" }));
+                options.Add("Reflect (safe)", new VoteOption("{Orange}Reflect (safe)", new List<string> { "hvh_restrict_rapidfire 3" }));
+                options.Add("Prevent damage", new VoteOption("{Red}Prevent damage", new List<string> { "hvh_restrict_rapidfire 4" }));
+            }
+        }
+        
+        Plugin.CustomVotesApi.Get()?.AddCustomVote(
+            "rapidfire", 
+            new List<string> {
+              "rf"  
+            },
+            "Rapid fire", 
+            defaultOption, 
+            30,
+            options, 
+            plugin.Config.CustomVoteSettings.Style);
+    }
+    public static void UnregisterCustomVotes(Plugin plugin)
+    {
+        Plugin.CustomVotesApi.Get()?.RemoveCustomVote("rapidfire");
+    }
 
-	public RapidFire(Plugin plugin)
-	{
-		_plugin = plugin;
-		_plugin.RegisterFakeConVars(this);
-		hvh_restrict_rapidfire.Value = (int)_plugin.Config.RapidFireFixMethod;
-		hvh_rapidfire_reflect_scale.Value = _plugin.Config.RapidFireReflectScale;
-	}
+    public HookResult OnWeaponFire(EventWeaponFire eventWeaponFire, GameEventInfo info)
+    {
+        if (!eventWeaponFire.Userid.IsPlayer())
+            return HookResult.Continue;
 
-	public static void RegisterCustomVotes(Plugin plugin)
-	{
-		string defaultOption = plugin.Config.RapidFireFixMethod switch
-		{
-			FixMethod.Allow => "Allow", 
-			FixMethod.Ignore => "Block", 
-			FixMethod.Reflect => "Reflect", 
-			FixMethod.ReflectSafe => "Reflect (safe)", 
-			FixMethod.PreventDamage => "Prevent damage", 
-			_ => "Allow", 
-		};
-		Dictionary<string, VoteOption> dictionary = new Dictionary<string, VoteOption>();
-		if (plugin.Config.CustomVoteSettings.RapidFireVote != "off")
-		{
-			dictionary.Add("Allow", new VoteOption("{Green}Allow", new List<string> { "hvh_restrict_rapidfire 0" }));
-			dictionary.Add("Block", new VoteOption("{Red}Block", new List<string> { "hvh_restrict_rapidfire 1" }));
-			if (plugin.Config.CustomVoteSettings.RapidFireVote == "full")
-			{
-				dictionary.Add("Reflect", new VoteOption("{Orange}Reflect", new List<string> { "hvh_restrict_rapidfire 2" }));
-				dictionary.Add("Reflect (safe)", new VoteOption("{Orange}Reflect (safe)", new List<string> { "hvh_restrict_rapidfire 3" }));
-				dictionary.Add("Prevent damage", new VoteOption("{Red}Prevent damage", new List<string> { "hvh_restrict_rapidfire 4" }));
-			}
-		}
-		Plugin.CustomVotesApi.Get()?.AddCustomVote("rapidfire", new List<string> { "rf" }, "Rapid fire", defaultOption, 30f, dictionary, plugin.Config.CustomVoteSettings.Style);
-	}
+        if (hvh_restrict_rapidfire.Value == (int)FixMethod.Ignore)
+            DelayNextAttack(eventWeaponFire.Userid!);
+        
+        var firedWeapon = eventWeaponFire.Userid!.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
+        if (firedWeapon?.DesignerName == "weapon_healthshot")
+            return HookResult.Continue;
+        var weaponData = firedWeapon?.GetVData<CCSWeaponBaseVData>();
+        
+        var index = eventWeaponFire.Userid.Pawn.Index;
+            
+        if (!_lastPlayerShotTick.TryGetValue(index, out var lastShotTick))
+        {
+            _lastPlayerShotTick[index] = Server.TickCount;
+            return HookResult.Continue;
+        }
+            
+        _lastPlayerShotTick[index] = Server.TickCount;
+        
+        var shotTickDiff = Server.TickCount - lastShotTick;
+        var possibleAttackDiff = (weaponData?.CycleTime.Values[0] * 64 ?? 0) - 1;
 
-	public static void UnregisterCustomVotes(Plugin plugin)
-	{
-		Plugin.CustomVotesApi.Get()?.RemoveCustomVote("rapidfire");
-	}
+        // this is ghetto but should work for now
+        if (shotTickDiff > possibleAttackDiff || 
+            firedWeapon?.DesignerName == "weapon_revolver")
+            return HookResult.Continue; 
 
-	public HookResult OnWeaponFire(EventWeaponFire eventWeaponFire, GameEventInfo info)
-	{
-		if (!eventWeaponFire.Userid.IsPlayer())
-		{
-			return HookResult.Continue;
-		}
-		CBasePlayerWeapon cBasePlayerWeapon = eventWeaponFire.Userid.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
-		if (cBasePlayerWeapon?.DesignerName == "weapon_healthshot")
-		{
-			return HookResult.Continue;
-		}
-		if (hvh_restrict_rapidfire.Value == 1)
-		{
-			DelayNextAttack(eventWeaponFire.Userid);
-		}
-		CCSWeaponBaseVData cCSWeaponBaseVData = cBasePlayerWeapon?.GetVData<CCSWeaponBaseVData>();
-		uint index = eventWeaponFire.Userid.Pawn.Index;
-		if (!_lastPlayerShotTick.TryGetValue(index, out var value))
-		{
-			_lastPlayerShotTick[index] = Server.TickCount;
-			return HookResult.Continue;
-		}
-		_lastPlayerShotTick[index] = Server.TickCount;
-		int num = Server.TickCount - value;
-		float num2 = ((cCSWeaponBaseVData != null) ? (cCSWeaponBaseVData.CycleTime.Values[0] * 64f) : 0f) - 1f;
-		if ((float)num > num2 || cBasePlayerWeapon?.DesignerName == "weapon_revolver")
-		{
-			return HookResult.Continue;
-		}
-		if (hvh_restrict_rapidfire.Value == 0)
-		{
-			return HookResult.Continue;
-		}
-		Console.WriteLine("[RezTop.cc] Обнаружен rapid fire у " + eventWeaponFire.Userid.PlayerName);
-		if (_rapidFireBlockUserIds.Count == 0)
-		{
-			Server.NextFrame(_rapidFireBlockUserIds.Clear);
-		}
-		_rapidFireBlockUserIds.Add(index);
-		return HookResult.Continue;
-	}
+        // no chat message if we allow rapid fire
+        if (hvh_restrict_rapidfire.Value == (int)FixMethod.Allow)
+            return HookResult.Continue;
+            
+        Console.WriteLine($"[RezTop.cc] Обнаружен rapid fire у {eventWeaponFire.Userid.PlayerName}");
+            
+        // clear list every frame (in case of misses)
+        if (_rapidFireBlockUserIds.Count == 0)
+            Server.NextFrame(_rapidFireBlockUserIds.Clear);
+            
+        _rapidFireBlockUserIds.Add(index);
+            
+        // skip warning if we already warned this player in the last 3 seconds
+        if (_rapidFireBlockWarnings.TryGetValue(index, out var lastWarningTime) &&
+            lastWarningTime + 3 > Server.CurrentTime) 
+            return HookResult.Continue;
+            
+        if (!_plugin.Config.PrintWarnings) 
+            return HookResult.Continue;
+        
+        _rapidFireBlockWarnings[index] = Server.CurrentTime;
 
-	public HookResult OnTakeDamage(DynamicHook h)
-	{
-		if (hvh_restrict_rapidfire.Value == 1)
-		{
-			return HookResult.Continue;
-		}
-		CTakeDamageInfo param = h.GetParam<CTakeDamageInfo>(1);
-		if (param.Attacker.Value == null)
-		{
-			return HookResult.Continue;
-		}
-		if (!_rapidFireBlockUserIds.Contains(param.Attacker.Index))
-		{
-			return HookResult.Continue;
-		}
-		switch (hvh_restrict_rapidfire.Value)
-		{
-		case 4:
-			param.Damage = 0f;
-			break;
-		case 2:
-		case 3:
-			param.Damage *= hvh_rapidfire_reflect_scale.Value;
-			h.SetParam(0, (CEntityInstance)param.Attacker.Value);
-			if (hvh_restrict_rapidfire.Value == 3)
-			{
-				param.DamageFlags |= TakeDamageFlags_t.DFLAG_PREVENT_DEATH;
-			}
-			break;
-		}
-		return HookResult.Changed;
-	}
+        return HookResult.Continue;
+    }
+    
+    public HookResult OnTakeDamage(DynamicHook h)
+    {
+        // the ignore method blocks the shot itself, damage stays untouched
+        if (hvh_restrict_rapidfire.Value == (int)FixMethod.Ignore)
+            return HookResult.Continue;
 
-	public HookResult OnBulletImpact(EventBulletImpact eventBulletImpact, GameEventInfo info)
-	{
-		if (hvh_restrict_rapidfire.Value != 1)
-		{
-			return HookResult.Continue;
-		}
-		if (!eventBulletImpact.Userid.IsPlayer())
-		{
-			return HookResult.Continue;
-		}
-		DelayNextAttack(eventBulletImpact.Userid);
-		return HookResult.Continue;
-	}
+        var damageInfo = h.GetParam<CTakeDamageInfo>(1);
 
-	private static void DelayNextAttack(CCSPlayerController player)
-	{
-		CBasePlayerWeapon cBasePlayerWeapon = player.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
-		if (cBasePlayerWeapon == null || cBasePlayerWeapon.DesignerName == "weapon_revolver" || cBasePlayerWeapon.DesignerName == "weapon_healthshot")
-		{
-			return;
-		}
-		CCSWeaponBaseVData vData = cBasePlayerWeapon.GetVData<CCSWeaponBaseVData>();
-		if (vData != null)
-		{
-			int num = (int)Math.Round(vData.CycleTime.Values[0] * 64f) - 3;
-			int num2 = (int)player.TickBase + num;
-			if (cBasePlayerWeapon.NextPrimaryAttackTick < num2)
-			{
-				cBasePlayerWeapon.NextPrimaryAttackTick = num2;
-				Utilities.SetStateChanged(cBasePlayerWeapon, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
-			}
-		}
-	}
+        // attacker is invalid
+        if (damageInfo.Attacker.Value == null)
+            return HookResult.Continue;
+
+        // attacker is not in the list
+        if (!_rapidFireBlockUserIds.Contains(damageInfo.Attacker.Index))
+            return HookResult.Continue;
+            
+        // set damage according to config
+        switch (hvh_restrict_rapidfire.Value)
+        {
+            case (int)FixMethod.Allow:
+                break;
+            case (int)FixMethod.PreventDamage:
+                damageInfo.Damage = 0;
+                break;
+            case (int)FixMethod.Reflect:
+            case (int)FixMethod.ReflectSafe:
+                damageInfo.Damage *= hvh_rapidfire_reflect_scale.Value;
+                h.SetParam<CEntityInstance>(0, damageInfo.Attacker.Value);
+                if (hvh_restrict_rapidfire.Value == (int)FixMethod.ReflectSafe)
+                    damageInfo.DamageFlags |= TakeDamageFlags_t.DFLAG_PREVENT_DEATH; //https://docs.cssharp.dev/api/CounterStrikeSharp.API.Core.TakeDamageFlags_t.html
+                break;
+            default:
+                break;
+        }
+
+        return HookResult.Changed;
+    }
+
+    public HookResult OnBulletImpact(EventBulletImpact eventBulletImpact, GameEventInfo info)
+    {
+        if (hvh_restrict_rapidfire.Value != (int)FixMethod.Ignore)
+            return HookResult.Continue;
+
+        if (!eventBulletImpact.Userid.IsPlayer())
+            return HookResult.Continue;
+
+        DelayNextAttack(eventBulletImpact.Userid!);
+
+        return HookResult.Continue;
+    }
+
+    // pushes the next primary attack out by the weapon's cycle time so a shifted second shot is never fired
+    private static void DelayNextAttack(CCSPlayerController player)
+    {
+        var firedWeapon = player.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
+
+        if (firedWeapon == null || firedWeapon.DesignerName == "weapon_revolver" || firedWeapon.DesignerName == "weapon_healthshot")
+            return;
+
+        var weaponData = firedWeapon.GetVData<CCSWeaponBaseVData>();
+
+        if (weaponData == null)
+            return;
+
+        var cycleTicks = (int)Math.Round(weaponData.CycleTime.Values[0] * 64) - 3;
+        var nextAttackTick = (int)player.TickBase + cycleTicks;
+
+        if (firedWeapon.NextPrimaryAttackTick >= nextAttackTick)
+            return;
+
+        firedWeapon.NextPrimaryAttackTick = nextAttackTick;
+        Utilities.SetStateChanged(firedWeapon, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
+    }
 }
