@@ -103,6 +103,30 @@ public class RapidFire
         return HookResult.Continue;
     }
     
+    public HookResult OnTakeDamagePre(CBaseEntity victim, CTakeDamageInfo damageInfo)
+    {
+        // Reflect modes still use the legacy hook below because this listener cannot change the damage target.
+        if (hvh_restrict_rapidfire.Value == (int)FixMethod.Reflect ||
+            hvh_restrict_rapidfire.Value == (int)FixMethod.ReflectSafe)
+            return HookResult.Continue;
+
+        if (hvh_restrict_rapidfire.Value == (int)FixMethod.Ignore ||
+            hvh_restrict_rapidfire.Value == (int)FixMethod.Allow)
+            return HookResult.Continue;
+
+        if (damageInfo.Attacker.Value == null || !_rapidFireBlockUserIds.Contains(damageInfo.Attacker.Index))
+            return HookResult.Continue;
+
+        if (hvh_restrict_rapidfire.Value == (int)FixMethod.PreventDamage)
+        {
+            damageInfo.Damage = 0;
+            return HookResult.Changed;
+        }
+
+        return HookResult.Continue;
+    }
+
+    // Compatibility hook: the new listener does not expose a way to redirect the damage target to the attacker.
     public HookResult OnTakeDamage(DynamicHook h)
     {
         // the ignore method blocks the shot itself, damage stays untouched
