@@ -1,7 +1,7 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
-using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+
 namespace hvhgg_essentials.Features;
 
 public class FriendlyFire
@@ -25,22 +25,19 @@ public class FriendlyFire
     
     
 
-    public HookResult OnTakeDamage(DynamicHook hook)
+    public HookResult OnTakeDamagePre(CBaseEntity victim, CTakeDamageInfo damageInfo)
     {
         if (!hvh_unmatched_friendlyfire.Value)
             return HookResult.Continue;
 
         try
         {
-            var victim = hook.GetParam<CEntityInstance>(0);
-            var damageInfo = hook.GetParam<CTakeDamageInfo>(1);
-        
             // attacker is null or invalid
             if (damageInfo.Attacker.Value == null || !damageInfo.Attacker.Value.IsValid)
                 return HookResult.Continue;
         
             var attackerPlayer = new CCSPlayerPawn(damageInfo.Attacker.Value.Handle);
-            var victimPlayer = new CCSPlayerController(victim.Handle);
+            var victimPlayer = new CCSPlayerPawn(victim.Handle);
         
             // attacker or victim is invalid
             if (!attackerPlayer.IsValid || !victimPlayer.IsValid)
