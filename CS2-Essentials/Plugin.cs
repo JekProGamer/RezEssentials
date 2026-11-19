@@ -123,7 +123,7 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         Console.WriteLine("[RezTop] Регистрирую обработчик дружественного огня");
         
         var friendlyFire = _serviceProvider!.GetRequiredService<FriendlyFire>();
-        VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(friendlyFire.OnTakeDamage, HookMode.Pre);
+        RegisterListener<Listeners.OnEntityTakeDamagePre>(friendlyFire.OnTakeDamagePre);
         
         Console.WriteLine("[RezTop] Обработчик дружественного огня зарегистрирован");
     }
@@ -134,7 +134,11 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         var rapidFire = _serviceProvider!.GetRequiredService<RapidFire>();
         RegisterEventHandler<EventBulletImpact>(rapidFire.OnBulletImpact, HookMode.Pre);
         RegisterEventHandler<EventWeaponFire>(rapidFire.OnWeaponFire);
+        RegisterListener<Listeners.OnEntityTakeDamagePre>(rapidFire.OnTakeDamagePre);
+        // Legacy hook is retained only for Reflect modes, because the new listener cannot redirect the damage target.
+#pragma warning disable CS0618
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(rapidFire.OnTakeDamage, HookMode.Pre);
+#pragma warning restore CS0618
         
         Console.WriteLine("[RezTop] Обработчики Rapid Fire зарегистрированы");
     }
@@ -156,8 +160,10 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         var friendlyFire = _serviceProvider.GetRequiredService<FriendlyFire>();
         var rapidFire = _serviceProvider.GetRequiredService<RapidFire>();
         
+        // Remove the legacy redirect hook used by Reflect / ReflectSafe.
+#pragma warning disable CS0618
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(rapidFire.OnTakeDamage, HookMode.Pre);
-        VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Unhook(friendlyFire.OnTakeDamage, HookMode.Pre);
+#pragma warning restore CS0618
         
         var weaponRestrict = _serviceProvider.GetRequiredService<WeaponRestrict>();
         VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Unhook(weaponRestrict.OnWeaponCanAcquire, HookMode.Pre);
