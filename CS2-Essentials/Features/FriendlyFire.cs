@@ -36,6 +36,9 @@ public class FriendlyFire
             if (damageInfo.Attacker.Value == null || !damageInfo.Attacker.Value.IsValid)
                 return HookResult.Continue;
         
+            if (victim.DesignerName != "player" || damageInfo.Attacker.Value.DesignerName != "player")
+                return HookResult.Continue;
+
             var attackerPlayer = new CCSPlayerPawn(damageInfo.Attacker.Value.Handle);
             var victimPlayer = new CCSPlayerPawn(victim.Handle);
         
@@ -44,7 +47,7 @@ public class FriendlyFire
                 return HookResult.Continue;
 
             // attacker and victim are on the same team or victim is not a player
-            if (attackerPlayer.TeamNum != victimPlayer.TeamNum || victim.DesignerName != "player")
+            if (attackerPlayer.TeamNum != victimPlayer.TeamNum)
                 return HookResult.Continue;
             
             // allow damage from certain inflicter types
