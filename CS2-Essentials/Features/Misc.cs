@@ -21,13 +21,13 @@ public class Misc
         _plugin = plugin;
     }
 
-    [ConsoleCommand("settings", "Настройки печати")]
+    [ConsoleCommand("settings", "Показать настройки сервера")]
     public void OnSettings(CCSPlayerController? player, CommandInfo inf)
     {
         AnnounceRules(player, true);
     }
     
-    [ConsoleCommand("hvh_cfg_reload", "Перезагрузите конфигурацию в текущем сеансе без перезапуска сервера")]
+    [ConsoleCommand("hvh_cfg_reload", "Перезагрузить конфигурацию без перезапуска сервера")]
     [RequiresPermissions("@css/generic")]
     [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnReloadConfigCommand(CCSPlayerController? player, CommandInfo info)
@@ -50,11 +50,11 @@ public class Misc
         {
             player.PrintToChat("Правила сервера:");
             player.PrintToChat(
-                $"unmatched.{ChatColors.Orange}gg{ChatColors.Default} дружественный огонь: {(_plugin.Config.UnmatchedFriendlyFire ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
+                $"Дружественный огонь: {(_plugin.Config.UnmatchedFriendlyFire ? $"{ChatColors.Lime}enabled" : $"{ChatColors.Red}disabled")}");
             player.PrintToChat(
-                $"Телепорт / Airstuck: {(!_plugin.Config.RestrictTeleport ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
+                $"Телепорт / Airstuck: {(!_plugin.Config.RestrictTeleport ? $"{ChatColors.Lime}enabled" : $"{ChatColors.Red}disabled")}");
             player.PrintToChat(
-                $"Rapid Fire: {(_plugin.Config.RapidFireFixMethod == FixMethod.Allow ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
+                $"Rapid Fire: {(_plugin.Config.RapidFireFixMethod == FixMethod.Allow ? $"{ChatColors.Lime}enabled" : $"{ChatColors.Red}disabled")}");
 
             switch (_plugin.Config.RapidFireFixMethod)
             {
@@ -64,15 +64,15 @@ public class Misc
                     player.PrintToChat($"Метод: {ChatColors.Red}блокировка выстрела");
                     break;
                 case FixMethod.PreventDamage:
-                    player.PrintToChat($"Метод: {ChatColors.Red}блокировка урона");
+                    player.PrintToChat($"Method: {ChatColors.Red}блокировка урона");
                     break;
                 case FixMethod.Reflect:
                     player.PrintToChat(
-                        $"Метод: {ChatColors.Red}отражение урона{ChatColors.Default} с множителем {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default}");
+                        $"Method: {ChatColors.Red}отражение урона{ChatColors.Default} at {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default}");
                     break;
                 case FixMethod.ReflectSafe:
                     player.PrintToChat(
-                        $"Метод: {ChatColors.Red}отражение урона{ChatColors.Default} с множителем {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default} и предотвращение смерти");
+                        $"Method: {ChatColors.Red}reflect damage{ChatColors.Default} at {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default} и предотвращение смерти");
                     break;
                 default:
                     break;
@@ -85,14 +85,14 @@ public class Misc
                     $"AWP: {(_plugin.Config.AllowedAwpCount == 0 ? ChatColors.Red : ChatColors.Orange)}{_plugin.Config.AllowedAwpCount} на команду");
             if (_plugin.Config.AllowedScoutCount != -1)
                 player.PrintToChat(
-                    $"Scout: {(_plugin.Config.AllowedScoutCount == 0 ? ChatColors.Red : ChatColors.Orange)}{_plugin.Config.AllowedScoutCount} на команду");
+                    $"Scout: {(_plugin.Config.AllowedScoutCount == 0 ? ChatColors.Red : ChatColors.Orange)}{_plugin.Config.AllowedScoutCount} per team");
             if (_plugin.Config.AllowedAutoSniperCount != -1)
                 player.PrintToChat(
-                    $"Auto: {(_plugin.Config.AllowedAutoSniperCount == 0 ? ChatColors.Red : ChatColors.Orange)}{_plugin.Config.AllowedAutoSniperCount} на команду");
+                    $"Auto: {(_plugin.Config.AllowedAutoSniperCount == 0 ? ChatColors.Red : ChatColors.Orange)}{_plugin.Config.AllowedAutoSniperCount} per team");
 
             player.PrintToChat(" ");
             player.PrintToChat(
-                $"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Введите {ChatColors.Red}!settings{ChatColors.Default}, чтобы снова посмотреть настройки");
+                $"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Напиши {ChatColors.Red}!settings{ChatColors.Default}, чтобы снова увидеть настройки");
         }
         
         if (_plugin.Config.AllowAdPrint)

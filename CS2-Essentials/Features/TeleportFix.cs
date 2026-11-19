@@ -24,6 +24,8 @@ public class TeleportFix
         hvh_restrict_teleport.Value = _plugin.Config.RestrictTeleport;
     }
     
+    
+    
 
     public HookResult RunCommand(DynamicHook h)
     {
@@ -59,7 +61,7 @@ public class TeleportFix
         
         // print a warning to all players
         var feature = isReasonable ? "fake up/down" : player.Pawn.Value!.As<CCSPlayerPawn>().OnGroundLastTick ? "телепорт" : "airstuck";
-        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Игрок {ChatColors.Red}{player.PlayerName}{ChatColors.Default} попытался использовать {ChatColors.Red}{feature}{ChatColors.Default}!");
+        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Player {ChatColors.Red}{player.PlayerName}{ChatColors.Default} tried using {ChatColors.Red}{feature}{ChatColors.Default}!");
         _teleportBlockWarnings[player.Index] = Server.CurrentTime;
 
         return HookResult.Changed;

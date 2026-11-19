@@ -28,6 +28,8 @@ public class RapidFire
         hvh_rapidfire_reflect_scale.Value = _plugin.Config.RapidFireReflectScale;
     }
 
+    
+    
 
     public HookResult OnWeaponFire(EventWeaponFire eventWeaponFire, GameEventInfo info)
     {
@@ -36,10 +38,13 @@ public class RapidFire
 
         if (hvh_restrict_rapidfire.Value == (int)FixMethod.Ignore)
             DelayNextAttack(eventWeaponFire.Userid!);
+
+        // Не применяем проверку RapidFire к шприцу.
+        var activeWeapon = eventWeaponFire.Userid!.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
+        if (activeWeapon?.DesignerName == "weapon_healthshot")
+            return HookResult.Continue;
         
         var firedWeapon = eventWeaponFire.Userid!.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
-        if (firedWeapon?.DesignerName == "weapon_healthshot")
-            return HookResult.Continue;
         var weaponData = firedWeapon?.GetVData<CCSWeaponBaseVData>();
         
         var index = eventWeaponFire.Userid.Pawn.Index;
@@ -64,7 +69,7 @@ public class RapidFire
         if (hvh_restrict_rapidfire.Value == (int)FixMethod.Allow)
             return HookResult.Continue;
             
-        Console.WriteLine($"[RezTop.cc] Обнаружен rapid fire у {eventWeaponFire.Userid.PlayerName}");
+        Console.WriteLine($"[RezTop] Detected rapid fire from {eventWeaponFire.Userid.PlayerName}");
             
         // clear list every frame (in case of misses)
         if (_rapidFireBlockUserIds.Count == 0)
@@ -80,6 +85,8 @@ public class RapidFire
         if (!_plugin.Config.PrintWarnings) 
             return HookResult.Continue;
         
+        // warn player
+        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Player {ChatColors.Red}{eventWeaponFire.Userid.PlayerName}{ChatColors.Default} tried using {ChatColors.Red}rapid fire{ChatColors.Default}!");
         _rapidFireBlockWarnings[index] = Server.CurrentTime;
 
         return HookResult.Continue;
@@ -141,7 +148,7 @@ public class RapidFire
     {
         var firedWeapon = player.Pawn.Value?.WeaponServices?.ActiveWeapon.Value;
 
-        if (firedWeapon == null || firedWeapon.DesignerName == "weapon_revolver" || firedWeapon.DesignerName == "weapon_healthshot")
+        if (firedWeapon == null || firedWeapon.DesignerName == "weapon_revolver")
             return;
 
         var weaponData = firedWeapon.GetVData<CCSWeaponBaseVData>();

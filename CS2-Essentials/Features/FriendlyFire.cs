@@ -2,7 +2,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
-
 namespace hvhgg_essentials.Features;
 
 public class FriendlyFire
@@ -22,6 +21,8 @@ public class FriendlyFire
         "inferno", "hegrenade_projectile", "flashbang_projectile", "smokegrenade_projectile", "decoy_projectile",
         "planted_c4"
     };
+    
+    
     
 
     public HookResult OnTakeDamage(DynamicHook hook)
@@ -60,7 +61,7 @@ public class FriendlyFire
             return HookResult.Continue;
         }
         
-        Console.WriteLine("[RezTop] Заблокировал огонь по тимейтам");
+        Console.WriteLine("[RezTop] Заблокирован огонь по союзнику");
         
         // otherwise block the damage
         return HookResult.Handled;

@@ -22,7 +22,7 @@ public class ResetScore
     }
     
     [ConsoleCommand("css_rs", "Обнулить счёт")]
-    [ConsoleCommand("css_resetscore", "Обнулить счёт")]
+    [ConsoleCommand("css_resetscore", "Reset score")]
     public void OnResetScore(CCSPlayerController? player, CommandInfo inf)
     {
         if (!hvh_resetscore.Value)
@@ -36,7 +36,7 @@ public class ResetScore
         if (player is { Score: 0, MVPs: 0 } && 
             stats is { Kills: 0, HeadShotKills: 0, Deaths: 0, Assists: 0, UtilityDamage: 0, Damage: 0, Objective: 0 })
         {
-            player.PrintToChat($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Твоя статистика уже обнулена.");
+            player.PrintToChat($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Your stats are already 0.");
             return;
         }
         
@@ -54,6 +54,6 @@ public class ResetScore
         Utilities.SetStateChanged(player, "CCSPlayerController", "m_iMVPs");
         Utilities.SetStateChanged(player, "CCSPlayerController", "m_iScore");
         
-        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Игрок {ChatColors.Red}{player.PlayerName}{ChatColors.Default} обнулил свою статистику!");
+        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Player {ChatColors.Red}{player.PlayerName}{ChatColors.Default} has reset their stats!");
     }
 }

@@ -22,8 +22,8 @@ public class RageQuit
         hvh_ragequit.Value = _plugin.Config.AllowRageQuit;
     }
     
-    [ConsoleCommand("css_rq", "Выход с сервера")]
-    [ConsoleCommand("css_ragequit", "Выход с сервера")]
+    [ConsoleCommand("css_rq", "Выйти с сервера")]
+    [ConsoleCommand("css_ragequit", "Rage quit")]
     public void OnRageQuit(CCSPlayerController? player, CommandInfo inf)
     {
         if (!hvh_ragequit.Value)
@@ -34,6 +34,6 @@ public class RageQuit
         
         player!.Kick("Rage quit");
         
-        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Игрок {ChatColors.Red}{player!.PlayerName}{ChatColors.Default} Покинул нас!");
+        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Player {ChatColors.Red}{player!.PlayerName}{ChatColors.Default} покинул сервер!");
     }
 }

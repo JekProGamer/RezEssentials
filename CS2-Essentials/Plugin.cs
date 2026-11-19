@@ -1,4 +1,5 @@
 ﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CSSharpUtils.Extensions;
@@ -12,7 +13,7 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
 {
     public override string ModuleName => "Reztop-essentials";
     public override string ModuleVersion => "1.6.0";
-    public override string ModuleAuthor => "imi-tat0r";
+    public override string ModuleAuthor => "RezTop";
     public override string ModuleDescription => "Основные функции для CS2 сервера RezTop";
     public Cs2EssentialsConfig Config { get; set; } = new();
     
@@ -20,8 +21,7 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
     
     public required MemoryFunctionVoid<CCSPlayer_MovementServices, IntPtr> RunCommand;
 
-    
-    public void OnConfigParsed(Cs2EssentialsConfig config)
+public void OnConfigParsed(Cs2EssentialsConfig config)
     {
         Config = config;
         config.Update();
@@ -42,7 +42,7 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
     {
         base.Load(hotReload);
 
-        Console.WriteLine("[RezTop] Начинаю загрузку плагина Essentials");
+        Console.WriteLine("[RezTop] Начинаю загрузку Reztop-essentials");
 
         var services = new ServiceCollection();
         
@@ -71,22 +71,23 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         UseMisc();
         UseTeleport();
         
-        Console.WriteLine("[RezTop] Загрузка плагина Essentials завершена");
+        Console.WriteLine("[RezTop] Загрузка Reztop-essentials завершена");
     }
 
+
+
     private void UseTeleport()
-()
     {
         var teleportFix = _serviceProvider!.GetRequiredService<TeleportFix>();
         
-        Console.WriteLine("[RezTop] Устанавливаю хук на RunCommand");
+        Console.WriteLine("[HvH.gg] Hooking run command");
         
         RunCommand = new MemoryFunctionVoid<CCSPlayer_MovementServices, IntPtr>(GameData.GetSignature("RunCommand"));
         RunCommand.Hook(teleportFix.RunCommand, HookMode.Pre);
     }
     private void UseMisc()
     {
-        Console.WriteLine("[RezTop] Регистрирую дополнительные команды");
+        Console.WriteLine("[HvH.gg] Register misc commands");
         
         var misc = _serviceProvider!.GetRequiredService<Misc>();
         RegisterConsoleCommandAttributeHandlers(misc);
@@ -98,54 +99,54 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
             return HookResult.Continue;
         });
         
-        Console.WriteLine("[RezTop] Регистрация дополнительных команд завершена");
+        Console.WriteLine("[HvH.gg] Finished registering misc commands");
     }
     private void UseResetScore()
     {
-        Console.WriteLine("[RezTop] Регистрирую команду обнуления счёта");
+        Console.WriteLine("[HvH.gg] Register reset score command");
         
         var resetScore = _serviceProvider!.GetRequiredService<ResetScore>();
         RegisterConsoleCommandAttributeHandlers(resetScore);
         
-        Console.WriteLine("[RezTop] Регистрация команды обнуления счёта завершена");
+        Console.WriteLine("[HvH.gg] Finished registering reset score command");
     }
     private void UseRageQuit()
     {
-        Console.WriteLine("[RezTop] Регистрирую команду выхода с сервера");
+        Console.WriteLine("[HvH.gg] Register rage quit command");
         
         var rageQuit = _serviceProvider!.GetRequiredService<RageQuit>();
         RegisterConsoleCommandAttributeHandlers(rageQuit);
         
-        Console.WriteLine("[RezTop] Регистрация команды выхода с сервера завершена");
+        Console.WriteLine("[HvH.gg] Finished registering rage quit command");
     }
     private void UseFriendlyFireRestrict()
     {
-        Console.WriteLine("[RezTop] Регистрирую обработчик дружественного огня");
+        Console.WriteLine("[HvH.gg] Register friendly fire listeners");
         
         var friendlyFire = _serviceProvider!.GetRequiredService<FriendlyFire>();
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(friendlyFire.OnTakeDamage, HookMode.Pre);
         
-        Console.WriteLine("[RezTop] Обработчик дружественного огня зарегистрирован");
+        Console.WriteLine("[HvH.gg] Finished registering friendly fire listeners");
     }
     private void UseRapidFireRestrict()
     {
-        Console.WriteLine("[RezTop] Регистрирую обработчики Rapid Fire");
+        Console.WriteLine("[HvH.gg] Register rapid fire listeners");
         
         var rapidFire = _serviceProvider!.GetRequiredService<RapidFire>();
         RegisterEventHandler<EventBulletImpact>(rapidFire.OnBulletImpact, HookMode.Pre);
         RegisterEventHandler<EventWeaponFire>(rapidFire.OnWeaponFire);
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(rapidFire.OnTakeDamage, HookMode.Pre);
         
-        Console.WriteLine("[RezTop] Обработчики Rapid Fire зарегистрированы");
+        Console.WriteLine("[HvH.gg] Finished registering rapid fire listeners");
     }
     private void UseWeaponRestrict()
     {
-        Console.WriteLine("[RezTop] Регистрирую обработчики ограничения оружия");
+        Console.WriteLine("[HvH.gg] Register weapon restriction listeners");
         
         var weaponRestrict = _serviceProvider!.GetRequiredService<WeaponRestrict>();
         VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(weaponRestrict.OnWeaponCanAcquire, HookMode.Pre);
         
-        Console.WriteLine("[RezTop] Обработчики ограничения оружия зарегистрированы");
+        Console.WriteLine("[HvH.gg] Finished registering weapon restriction listeners");
     }
     
     public override void Unload(bool hotReload)
@@ -165,6 +166,6 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         var teleportFix = _serviceProvider.GetRequiredService<TeleportFix>();
         RunCommand.Unhook(teleportFix.RunCommand, HookMode.Pre);
         
-        base.Unload(hotReload);
+base.Unload(hotReload);
     }
 }
