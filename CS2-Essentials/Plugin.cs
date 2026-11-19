@@ -157,7 +157,6 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
         if (_serviceProvider is null)
             return;
         
-        var friendlyFire = _serviceProvider.GetRequiredService<FriendlyFire>();
         var rapidFire = _serviceProvider.GetRequiredService<RapidFire>();
         
         // Remove the legacy redirect hook used by Reflect / ReflectSafe.
