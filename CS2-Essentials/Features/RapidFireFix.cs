@@ -2,6 +2,7 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Cvars.Validators;
+using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using CSSharpUtils.Extensions;
@@ -85,8 +86,18 @@ public class RapidFire
         if (!_plugin.Config.PrintWarnings) 
             return HookResult.Continue;
         
-        // warn player
-        Server.PrintToChatAll($"{ChatUtils.FormatMessage(_plugin.Config.ChatPrefix)} Player {ChatColors.Red}{eventWeaponFire.Userid.PlayerName}{ChatColors.Default} tried using {ChatColors.Red}rapid fire{ChatColors.Default}!");
+        // Уведомление о Rapid Fire отправляется только администраторам.
+        var adminLogMessage = ChatUtils.FormatMessage(
+            $"[{RED}AdminLog {Gold}R{DarkRed}T{Default}] Игрок {Red}{eventWeaponFire.Userid.PlayerName}{Default} попытался использовать {Red}Rapid Fire{Default}!");
+
+        foreach (var admin in Utilities.GetPlayers())
+        {
+            if (!admin.IsValid || !admin.PlayerPawn.IsValid || !AdminManager.PlayerHasPermissions(admin, "@css/generic"))
+                continue;
+
+            admin.PrintToChat(adminLogMessage);
+        }
+
         _rapidFireBlockWarnings[index] = Server.CurrentTime;
 
         return HookResult.Continue;
