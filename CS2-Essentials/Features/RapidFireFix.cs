@@ -88,7 +88,7 @@ public class RapidFire
         
         // Уведомление о Rapid Fire отправляется только администраторам.
         var adminLogMessage = ChatUtils.FormatMessage(
-            $"[{RED}AdminLog {Gold}R{DarkRed}T{Default}] Игрок {Red}{eventWeaponFire.Userid.PlayerName}{Default} попытался использовать {Red}Rapid Fire{Default}!");
+            $"[{{RED}}AdminLog {{Gold}}R{{DarkRed}}T{{Default}}] Игрок {{Red}}{eventWeaponFire.Userid.PlayerName}{{Default}} попытался использовать {{Red}}Rapid Fire{{Default}}!");
 
         foreach (var admin in Utilities.GetPlayers())
         {
