@@ -53,29 +53,33 @@ public class Misc
                 $"Дружественный огонь: {(_plugin.Config.UnmatchedFriendlyFire ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
             player.PrintToChat(
                 $"Телепорт / Airstuck: {(!_plugin.Config.RestrictTeleport ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
-            player.PrintToChat(
-                $"Rapid Fire: {(_plugin.Config.RapidFireFixMethod == FixMethod.Allow ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
-
-            switch (_plugin.Config.RapidFireFixMethod)
+            // Информация о Rapid Fire отображается только администраторам.
+            if (AdminManager.PlayerHasPermissions(player, "@css/generic"))
             {
-                case FixMethod.Allow:
-                    break;
-                case FixMethod.Ignore:
-                    player.PrintToChat($"Метод: {ChatColors.Red}блокировка выстрела");
-                    break;
-                case FixMethod.PreventDamage:
-                    player.PrintToChat($"Метод: {ChatColors.Red}блокировка урона");
-                    break;
-                case FixMethod.Reflect:
-                    player.PrintToChat(
-                        $"Метод: {ChatColors.Red}отражение урона{ChatColors.Default} с множителем {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default}");
-                    break;
-                case FixMethod.ReflectSafe:
-                    player.PrintToChat(
-                        $"Метод: {ChatColors.Red}отражение урона{ChatColors.Default} с множителем {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default} и предотвращение смерти");
-                    break;
-                default:
-                    break;
+                player.PrintToChat(
+                    $"Rapid Fire: {(_plugin.Config.RapidFireFixMethod == FixMethod.Allow ? $"{ChatColors.Lime}включено" : $"{ChatColors.Red}отключено")}");
+
+                switch (_plugin.Config.RapidFireFixMethod)
+                {
+                    case FixMethod.Allow:
+                        break;
+                    case FixMethod.Ignore:
+                        player.PrintToChat($"Метод: {ChatColors.Red}блокировка выстрела");
+                        break;
+                    case FixMethod.PreventDamage:
+                        player.PrintToChat($"Метод: {ChatColors.Red}блокировка урона");
+                        break;
+                    case FixMethod.Reflect:
+                        player.PrintToChat(
+                            $"Метод: {ChatColors.Red}отражение урона{ChatColors.Default} с множителем {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default}");
+                        break;
+                    case FixMethod.ReflectSafe:
+                        player.PrintToChat(
+                            $"Метод: {ChatColors.Red}отражение урона{ChatColors.Default} с множителем {ChatColors.Orange}{_plugin.Config.RapidFireReflectScale}x{ChatColors.Default} и предотвращение смерти");
+                        break;
+                    default:
+                        break;
+                }
             }
 
             player.PrintToChat(" ");
