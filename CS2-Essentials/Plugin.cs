@@ -1,5 +1,4 @@
 ﻿using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CSSharpUtils.Extensions;
@@ -21,7 +20,7 @@ public class Plugin : BasePlugin, IPluginConfig<Cs2EssentialsConfig>
     
     public required MemoryFunctionVoid<CCSPlayer_MovementServices, IntPtr> RunCommand;
 
-public void OnConfigParsed(Cs2EssentialsConfig config)
+    public void OnConfigParsed(Cs2EssentialsConfig config)
     {
         Config = config;
         config.Update();
@@ -80,14 +79,14 @@ public void OnConfigParsed(Cs2EssentialsConfig config)
     {
         var teleportFix = _serviceProvider!.GetRequiredService<TeleportFix>();
         
-        Console.WriteLine("[HvH.gg] Hooking run command");
+        Console.WriteLine("[RezTop] Устанавливаю хук RunCommand");
         
         RunCommand = new MemoryFunctionVoid<CCSPlayer_MovementServices, IntPtr>(GameData.GetSignature("RunCommand"));
         RunCommand.Hook(teleportFix.RunCommand, HookMode.Pre);
     }
     private void UseMisc()
     {
-        Console.WriteLine("[HvH.gg] Register misc commands");
+        Console.WriteLine("[RezTop] Регистрирую дополнительные команды");
         
         var misc = _serviceProvider!.GetRequiredService<Misc>();
         RegisterConsoleCommandAttributeHandlers(misc);
@@ -99,54 +98,54 @@ public void OnConfigParsed(Cs2EssentialsConfig config)
             return HookResult.Continue;
         });
         
-        Console.WriteLine("[HvH.gg] Finished registering misc commands");
+        Console.WriteLine("[RezTop] Регистрация дополнительных команд завершена");
     }
     private void UseResetScore()
     {
-        Console.WriteLine("[HvH.gg] Register reset score command");
+        Console.WriteLine("[RezTop] Регистрирую команду обнуления счёта");
         
         var resetScore = _serviceProvider!.GetRequiredService<ResetScore>();
         RegisterConsoleCommandAttributeHandlers(resetScore);
         
-        Console.WriteLine("[HvH.gg] Finished registering reset score command");
+        Console.WriteLine("[RezTop] Регистрация команды обнуления счёта завершена");
     }
     private void UseRageQuit()
     {
-        Console.WriteLine("[HvH.gg] Register rage quit command");
+        Console.WriteLine("[RezTop] Регистрирую команду выхода с сервера");
         
         var rageQuit = _serviceProvider!.GetRequiredService<RageQuit>();
         RegisterConsoleCommandAttributeHandlers(rageQuit);
         
-        Console.WriteLine("[HvH.gg] Finished registering rage quit command");
+        Console.WriteLine("[RezTop] Регистрация команды выхода с сервера");
     }
     private void UseFriendlyFireRestrict()
     {
-        Console.WriteLine("[HvH.gg] Register friendly fire listeners");
+        Console.WriteLine("[RezTop] Регистрирую обработчик дружественного огня");
         
         var friendlyFire = _serviceProvider!.GetRequiredService<FriendlyFire>();
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(friendlyFire.OnTakeDamage, HookMode.Pre);
         
-        Console.WriteLine("[HvH.gg] Finished registering friendly fire listeners");
+        Console.WriteLine("[RezTop] Обработчик дружественного огня зарегистрирован");
     }
     private void UseRapidFireRestrict()
     {
-        Console.WriteLine("[HvH.gg] Register rapid fire listeners");
+        Console.WriteLine("[RezTop] Регистрирую обработчики Rapid Fire");
         
         var rapidFire = _serviceProvider!.GetRequiredService<RapidFire>();
         RegisterEventHandler<EventBulletImpact>(rapidFire.OnBulletImpact, HookMode.Pre);
         RegisterEventHandler<EventWeaponFire>(rapidFire.OnWeaponFire);
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(rapidFire.OnTakeDamage, HookMode.Pre);
         
-        Console.WriteLine("[HvH.gg] Finished registering rapid fire listeners");
+        Console.WriteLine("[RezTop] Обработчики Rapid Fire зарегистрированы");
     }
     private void UseWeaponRestrict()
     {
-        Console.WriteLine("[HvH.gg] Register weapon restriction listeners");
+        Console.WriteLine("[RezTop] Регистрирую обработчики ограничения оружия");
         
         var weaponRestrict = _serviceProvider!.GetRequiredService<WeaponRestrict>();
         VirtualFunctions.CCSPlayer_ItemServices_CanAcquireFunc.Hook(weaponRestrict.OnWeaponCanAcquire, HookMode.Pre);
         
-        Console.WriteLine("[HvH.gg] Finished registering weapon restriction listeners");
+        Console.WriteLine("[RezTop] Обработчики ограничения оружия зарегистрированы");
     }
     
     public override void Unload(bool hotReload)
@@ -166,6 +165,6 @@ public void OnConfigParsed(Cs2EssentialsConfig config)
         var teleportFix = _serviceProvider.GetRequiredService<TeleportFix>();
         RunCommand.Unhook(teleportFix.RunCommand, HookMode.Pre);
         
-base.Unload(hotReload);
+        base.Unload(hotReload);
     }
 }
